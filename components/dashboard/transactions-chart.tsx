@@ -1,5 +1,6 @@
 "use client";
 import Highcharts from "highcharts";
+import HighchartsExporting from "highcharts/modules/exporting";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
@@ -15,6 +16,10 @@ import { HighchartsReactProps } from "highcharts-react-official";
 import { BelvoTransaction } from "@/lib/definitions";
 import { addDays, format, parseISO, startOfISOWeek } from "date-fns";
 import { highchartColors } from "@/lib/highchart";
+
+if (typeof Highcharts === "object") {
+  HighchartsExporting(Highcharts);
+}
 
 enum ChartType {
   area = "area",
@@ -144,13 +149,13 @@ export default function TransactionsChart({
     },
     series: [
       {
-        name: "Incomes",
+        name: "Inflow",
         data: incomes,
         type: chartType,
         color: highchartColors.green,
       },
       {
-        name: "Outcomes",
+        name: "Outflow",
         data: outcomes,
         type: chartType,
         color: highchartColors.rose,
@@ -160,7 +165,7 @@ export default function TransactionsChart({
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0">
+      <CardHeader className="flex flex-col items-center justify-between space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
         <div className="grid gap-2">
           <CardTitle>Transaction Trends Over Time</CardTitle>
           <p className="text-sm text-muted-foreground">

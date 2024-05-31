@@ -30,7 +30,7 @@ export default async function Dashboard() {
       >
         <DescriptiveStatistics transactions={data} />
         <TransactionsChart transactions={data} />
-        {/* <TransactionsScattered /> */}
+        <TransactionsScattered transactions={data} />
         <TransactionHistory transactions={data} />
       </Suspense>
     </>

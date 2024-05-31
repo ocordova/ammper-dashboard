@@ -1,16 +1,19 @@
 "use client";
 import Highcharts from "highcharts";
 import HighchartsMore from "highcharts/highcharts-more";
+import HighchartsExporting from "highcharts/modules/exporting";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useEffect, useState } from "react";
 import Chart from "@/components/chart";
 import { HighchartsReactProps } from "highcharts-react-official";
-import TransactionData from "@/db/transactions.json";
 import { BelvoTransaction } from "@/lib/definitions";
 import { formatAmount } from "@/lib/utils";
 import { highchartColors } from "@/lib/highchart";
 
-HighchartsMore(Highcharts);
+if (typeof Highcharts === "object") {
+  HighchartsExporting(Highcharts);
+  HighchartsMore(Highcharts);
+}
 
 const groupByCategoryAndType = (data: BelvoTransaction[]) => {
   const groupedData: {
@@ -47,15 +50,43 @@ const getColorForType = (type: string) => {
   return type === "INFLOW" ? highchartColors.emerald : highchartColors.rose;
 };
 
-export default function TransactionsChart() {
-  const [scatterData, setScatterData] = useState<any[]>([]);
+const CustomLegendMarkup = (
+  <div
+    id="custom-legend"
+    className="flex flex-row items-center justify-center gap-x-1.5"
+  >
+    <span className="inline-flex items-center gap-x-1.5 rounded-full px-2 py-1 text-sm">
+      <svg
+        className="h-2 w-2 fill-emerald-500"
+        viewBox="0 0 6 6"
+        aria-hidden="true"
+      >
+        <circle cx={3} cy={3} r={3} />
+      </svg>
+      Inflow
+    </span>
+    <span className="inline-flex items-center gap-x-1.5 rounded-full px-2 py-1 text-sm">
+      <svg
+        className="h-2 w-2 fill-rose-500"
+        viewBox="0 0 6 6"
+        aria-hidden="true"
+      >
+        <circle cx={3} cy={3} r={3} />
+      </svg>
+      Outflow
+    </span>
+  </div>
+);
 
-  const transactions: BelvoTransaction[] =
-    TransactionData as BelvoTransaction[];
+export default function TransactionsChart({
+  transactions,
+}: {
+  transactions: BelvoTransaction[];
+}) {
+  const [scatterData, setScatterData] = useState<any[]>([]);
 
   useEffect(() => {
     const data = groupByCategoryAndType(transactions);
-    console.log("Grouped Data:", data); // Logging the grouped data
     setScatterData(data);
   }, [transactions]);
 
@@ -121,30 +152,20 @@ export default function TransactionsChart() {
     ],
   };
 
-  console.log("Chart Options:", options); // Logging the chart options
-
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0">
         <div className="grid gap-2">
           <CardTitle>Transaction Summary by Category</CardTitle>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-muted-foreground">
             View average and total transaction amounts by category, with
-            color-coded bubbles for inflows and outflows.
+            color-coded bubbles for inflows and outflows
           </p>
         </div>
       </CardHeader>
       <CardContent>
         <Chart options={options} highcharts={Highcharts} />
-        <div
-          id="custom-legend"
-          style={{ textAlign: "center", marginBottom: "10px" }}
-        >
-          <span style={{ color: highchartColors.emerald, marginRight: "15px" }}>
-            ● INFLOW
-          </span>
-          <span style={{ color: highchartColors.rose }}>● OUTFLOW</span>
-        </div>
+        {CustomLegendMarkup}
       </CardContent>
     </Card>
   );
