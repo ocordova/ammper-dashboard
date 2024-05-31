@@ -153,7 +153,11 @@ export default function TransactionsChart() {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0">
         <div className="grid gap-2">
-          <CardTitle>Transactions</CardTitle>
+          <CardTitle>Transaction Trends Over Time</CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Explore how incomes and outcomes vary over daily, weekly, or monthly
+            periods.
+          </p>
         </div>
         <div className="flex space-x-2">
           <Select
