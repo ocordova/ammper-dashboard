@@ -1,19 +1,13 @@
-"use client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
+import { ColumnDef } from "@tanstack/react-table";
+import { format, parseISO } from "date-fns";
+import { Badge } from "@/components/ui/badge";
 import {
-  BelvoAccountCurrency,
   BelvoTransaction,
   BelvoTransactionMerchant,
   BelvoTransactionStatus,
   BelvoTransactionType,
+  BelvoAccountCurrency,
 } from "@/lib/definitions";
-import { ColumnDef } from "@tanstack/react-table";
-
-import { DataTable } from "@/components/ui/data-table";
-import { Badge } from "../ui/badge";
-import { sortByValueDate } from "@/lib/utils";
-import { format, parseISO } from "date-fns";
 
 export const columns: ColumnDef<BelvoTransaction>[] = [
   {
@@ -75,24 +69,3 @@ export const columns: ColumnDef<BelvoTransaction>[] = [
     },
   },
 ];
-
-export default function TransactionsHistory({
-  transactions,
-}: {
-  transactions: BelvoTransaction[];
-}) {
-  const sorted = transactions.sort(sortByValueDate);
-
-  return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0">
-        <div className="grid gap-2">
-          <CardTitle>Transaction History</CardTitle>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <DataTable columns={columns} data={sorted} />
-      </CardContent>
-    </Card>
-  );
-}

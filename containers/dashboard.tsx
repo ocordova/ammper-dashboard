@@ -1,7 +1,7 @@
-import TransactionHistory from "@/components/dashboard/transactions-histoy";
-import TransactionsChart from "@/components/dashboard/transactions-chart";
-import DescriptiveStatistics from "@/components/dashboard/descriptive-statistics";
-import TransactionsScattered from "@/components/dashboard/transactions-scattered";
+import TransactionHistory from "@/components/dashboard/transaction-history/card";
+import TransactionsChart from "@/components/dashboard/transactions-chart/card";
+import DescriptiveStatistics from "@/components/dashboard/descriptive-statistics/statistics";
+import TransactionsScattered from "@/components/dashboard/transactions-scattered/card";
 import { getTransactions } from "@/actions/get-transactions";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -33,14 +33,7 @@ export default async function Dashboard() {
 
   return (
     <>
-      <Suspense
-        fallback={
-          <>
-            <Skeleton className="h-8 w-36" />
-            <Skeleton className="h-8 w-36" />
-          </>
-        }
-      >
+      <Suspense>
         <DescriptiveStatistics transactions={data} />
         <TransactionsChart transactions={data} />
         <TransactionsScattered transactions={data} />

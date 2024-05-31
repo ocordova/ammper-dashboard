@@ -10,11 +10,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { AreaChart, BarChart3, LineChart } from "lucide-react";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import Chart from "@/components/chart";
 import { HighchartsReactProps } from "highcharts-react-official";
 import { BelvoTransaction } from "@/lib/definitions";
-import { addDays, format, parseISO, startOfISOWeek } from "date-fns";
+import {
+  groupByPeriodAndType,
+  convertWeekToDate,
+  TimePeriod,
+} from "@/lib/chart-utils";
 import { highchartColors } from "@/lib/highchart";
 
 if (typeof Highcharts === "object") {
@@ -27,141 +31,102 @@ enum ChartType {
   bar = "column",
 }
 
-type TimePeriod = "daily" | "weekly" | "monthly";
-
-const formatDate = (date: string, period: TimePeriod): string => {
-  const dateObj = parseISO(date);
-  return {
-    daily: format(dateObj, "yyyy-MM-dd"),
-    weekly: format(dateObj, "yyyy-II"),
-    monthly: format(dateObj, "yyyy-MM"),
-  }[period];
-};
-
-const groupByPeriodAndType = (data: BelvoTransaction[], period: TimePeriod) => {
-  const groupedData: { [key: string]: { INFLOW: number; OUTFLOW: number } } =
-    {};
-
-  data.forEach((entry) => {
-    const date = formatDate(entry.value_date, period);
-
-    if (!groupedData[date]) {
-      groupedData[date] = { INFLOW: 0, OUTFLOW: 0 };
-    }
-    groupedData[date][entry.type] += entry.amount;
-  });
-
-  return groupedData;
-};
-
-const convertWeekToDate = (weekYear: string): Date => {
-  const [year, week] = weekYear.split("-").map(Number);
-  const firstDayOfYear = new Date(year, 0, 1);
-  const firstISOWeekDay = startOfISOWeek(firstDayOfYear);
-  return addDays(firstISOWeekDay, (week - 1) * 7);
-};
+interface TransactionsChartProps {
+  transactions: BelvoTransaction[];
+}
 
 export default function TransactionsChart({
   transactions,
-}: {
-  transactions: BelvoTransaction[];
-}) {
+}: TransactionsChartProps) {
   const [chartType, setChartType] = useState<ChartType>(ChartType.area);
   const [timePeriod, setTimePeriod] = useState<TimePeriod>("daily");
   const [incomes, setIncomes] = useState<[number, number][]>([]);
   const [outcomes, setOutcomes] = useState<[number, number][]>([]);
 
-  const groupedData: { [key: string]: { INFLOW: number; OUTFLOW: number } } =
-    useMemo(
-      () => groupByPeriodAndType(transactions, timePeriod),
-      [transactions, timePeriod],
-    );
+  const groupedData = useMemo(
+    () => groupByPeriodAndType(transactions, timePeriod),
+    [transactions, timePeriod],
+  );
 
   useEffect(() => {
-    const incomesData = Object.keys(groupedData)
-      .map((date) => {
-        const timestamp =
-          timePeriod === "weekly"
-            ? convertWeekToDate(date).getTime()
-            : new Date(date).getTime();
-        return [timestamp, groupedData[date].INFLOW];
-      })
-      .sort((a, b) => a[0] - b[0]);
+    const mapData = (type: "INFLOW" | "OUTFLOW"): [number, number][] =>
+      Object.keys(groupedData)
+        .map((date) => {
+          const timestamp =
+            timePeriod === "weekly"
+              ? convertWeekToDate(date).getTime()
+              : new Date(date).getTime();
+          return [timestamp, groupedData[date][type]] as [number, number];
+        })
+        .sort((a, b) => a[0] - b[0]);
 
-    const outcomesData = Object.keys(groupedData)
-      .map((date) => {
-        const timestamp =
-          timePeriod === "weekly"
-            ? convertWeekToDate(date).getTime()
-            : new Date(date).getTime();
-        return [timestamp, groupedData[date].OUTFLOW];
-      })
-      .sort((a, b) => a[0] - b[0]);
-
-    setIncomes(incomesData.map((data) => [data[0], data[1]]));
-    setOutcomes(outcomesData.map((data) => [data[0], data[1]]));
+    setIncomes(mapData("INFLOW"));
+    setOutcomes(mapData("OUTFLOW"));
   }, [groupedData, timePeriod]);
 
-  const onTypeChange = (type: ChartType) => {
+  const onTypeChange = useCallback((type: ChartType) => {
     setChartType(type);
-  };
+  }, []);
 
-  const onTimePeriodChange = (period: TimePeriod) => {
+  const onTimePeriodChange = useCallback((period: TimePeriod) => {
     setTimePeriod(period);
-  };
+  }, []);
 
-  const options: HighchartsReactProps["options"] = {
-    title: {
-      text: "",
-    },
-    xAxis: {
-      type: "datetime",
+  const options: HighchartsReactProps["options"] = useMemo(
+    () => ({
       title: {
-        text: "Date",
+        text: "",
       },
-      labels: {
-        formatter: function () {
-          if (timePeriod === "weekly") {
-            return Highcharts.dateFormat("%Y-%m-%d", Number(this.value));
-          } else if (timePeriod === "monthly") {
-            return Highcharts.dateFormat("%Y-%m", Number(this.value));
-          } else {
-            return Highcharts.dateFormat("%e %b", Number(this.value));
-          }
+      xAxis: {
+        type: "datetime",
+        title: {
+          text: "Date",
+        },
+        labels: {
+          formatter: function () {
+            if (timePeriod === "weekly") {
+              return Highcharts.dateFormat("%Y-%m-%d", Number(this.value));
+            } else if (timePeriod === "monthly") {
+              return Highcharts.dateFormat("%Y-%m", Number(this.value));
+            } else {
+              return Highcharts.dateFormat("%e %b", Number(this.value));
+            }
+          },
         },
       },
-    },
-    yAxis: {
-      title: {
-        text: "Amount",
+      yAxis: {
+        title: {
+          text: "Amount",
+        },
       },
-    },
-    tooltip: {
-      formatter: function () {
-        const seriesName = this.series.name;
-        const sign = seriesName === "Incomes" ? "+" : "-";
-        const amount = this.y?.toLocaleString(undefined, {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        });
-        return `${seriesName}: ${sign}$${amount}`;
+      tooltip: {
+        formatter: function () {
+          const seriesName = this.series.name;
+          const sign = seriesName === "Inflow" ? "+" : "-";
+          const amount = this.y?.toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          });
+          return `${seriesName}: ${sign}$${amount}`;
+        },
       },
-    },
-    series: [
-      {
-        name: "Inflow",
-        data: incomes,
-        type: chartType,
-        color: highchartColors.green,
-      },
-      {
-        name: "Outflow",
-        data: outcomes,
-        type: chartType,
-        color: highchartColors.rose,
-      },
-    ],
-  };
+      series: [
+        {
+          name: "Inflow",
+          data: incomes,
+          type: chartType,
+          color: highchartColors.green,
+        },
+        {
+          name: "Outflow",
+          data: outcomes,
+          type: chartType,
+          color: highchartColors.rose,
+        },
+      ],
+    }),
+    [chartType, incomes, outcomes, timePeriod],
+  );
 
   return (
     <Card>
