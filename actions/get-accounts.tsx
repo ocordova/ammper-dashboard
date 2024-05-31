@@ -1,3 +1,4 @@
+"use server";
 import BelvoClient from "@/lib/belvo-client";
 import { BELVO_LINK_ID } from "@/lib/constants";
 import { ApiResponseEnvelope, BelvoAccount } from "@/lib/definitions";

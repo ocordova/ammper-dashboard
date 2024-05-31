@@ -12,11 +12,11 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 export default function AccountFilter({
   accounts,
+  defaultAccount,
 }: {
   accounts: BelvoAccount[];
+  defaultAccount: BelvoAccount;
 }) {
-  const defaultAccount = accounts[0];
-
   const router = useRouter();
   const pathname = usePathname();
 

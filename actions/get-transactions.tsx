@@ -1,3 +1,4 @@
+"use server";
 import BelvoClient from "@/lib/belvo-client";
 import { ApiResponseEnvelope, BelvoTransaction } from "@/lib/definitions";
 
