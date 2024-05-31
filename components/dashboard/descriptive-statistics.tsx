@@ -1,12 +1,13 @@
 import { calculateStatistics } from "@/lib/statistics";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import TransactionData from "@/db/transactions.json";
 import { BelvoTransaction } from "@/lib/definitions";
 
-export default function DescriptiveStatistics() {
-  const { mean, median, mode, stdDev } = calculateStatistics(
-    TransactionData as BelvoTransaction[],
-  );
+export default function DescriptiveStatistics({
+  transactions,
+}: {
+  transactions: BelvoTransaction[];
+}) {
+  const { mean, median, mode, stdDev } = calculateStatistics(transactions);
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

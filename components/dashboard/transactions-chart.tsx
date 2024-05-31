@@ -12,7 +12,6 @@ import { AreaChart, BarChart3, LineChart } from "lucide-react";
 import { useEffect, useState, useMemo } from "react";
 import Chart from "@/components/chart";
 import { HighchartsReactProps } from "highcharts-react-official";
-import TransactionData from "@/db/transactions.json";
 import { BelvoTransaction } from "@/lib/definitions";
 import { addDays, format, parseISO, startOfISOWeek } from "date-fns";
 import { highchartColors } from "@/lib/highchart";
@@ -26,13 +25,11 @@ enum ChartType {
 type TimePeriod = "daily" | "weekly" | "monthly";
 
 const formatDate = (date: string, period: TimePeriod): string => {
-  const d = new Date(date);
-  const timezoneOffset = d.getTimezoneOffset() * 60000; // offset in milliseconds
-  const localISOTime = new Date(d.getTime() - timezoneOffset).toISOString();
+  const dateObj = parseISO(date);
   return {
-    daily: localISOTime.split("T")[0],
-    weekly: format(parseISO(localISOTime), "yyyy-II"),
-    monthly: format(parseISO(localISOTime), "yyyy-MM"),
+    daily: format(dateObj, "yyyy-MM-dd"),
+    weekly: format(dateObj, "yyyy-II"),
+    monthly: format(dateObj, "yyyy-MM"),
   }[period];
 };
 
@@ -41,7 +38,8 @@ const groupByPeriodAndType = (data: BelvoTransaction[], period: TimePeriod) => {
     {};
 
   data.forEach((entry) => {
-    const date = formatDate(entry.accounting_date, period);
+    const date = formatDate(entry.value_date, period);
+
     if (!groupedData[date]) {
       groupedData[date] = { INFLOW: 0, OUTFLOW: 0 };
     }
@@ -58,14 +56,15 @@ const convertWeekToDate = (weekYear: string): Date => {
   return addDays(firstISOWeekDay, (week - 1) * 7);
 };
 
-export default function TransactionsChart() {
+export default function TransactionsChart({
+  transactions,
+}: {
+  transactions: BelvoTransaction[];
+}) {
   const [chartType, setChartType] = useState<ChartType>(ChartType.area);
   const [timePeriod, setTimePeriod] = useState<TimePeriod>("daily");
   const [incomes, setIncomes] = useState<[number, number][]>([]);
   const [outcomes, setOutcomes] = useState<[number, number][]>([]);
-
-  const transactions: BelvoTransaction[] =
-    TransactionData as BelvoTransaction[];
 
   const groupedData: { [key: string]: { INFLOW: number; OUTFLOW: number } } =
     useMemo(
@@ -102,8 +101,6 @@ export default function TransactionsChart() {
     setChartType(type);
   };
 
-  console.log(incomes);
-
   const onTimePeriodChange = (period: TimePeriod) => {
     setTimePeriod(period);
   };
@@ -116,6 +113,17 @@ export default function TransactionsChart() {
       type: "datetime",
       title: {
         text: "Date",
+      },
+      labels: {
+        formatter: function () {
+          if (timePeriod === "weekly") {
+            return Highcharts.dateFormat("%Y-%m-%d", Number(this.value));
+          } else if (timePeriod === "monthly") {
+            return Highcharts.dateFormat("%Y-%m", Number(this.value));
+          } else {
+            return Highcharts.dateFormat("%e %b", Number(this.value));
+          }
+        },
       },
     },
     yAxis: {
@@ -139,7 +147,7 @@ export default function TransactionsChart() {
         name: "Incomes",
         data: incomes,
         type: chartType,
-        color: highchartColors.emerald,
+        color: highchartColors.green,
       },
       {
         name: "Outcomes",
@@ -157,7 +165,7 @@ export default function TransactionsChart() {
           <CardTitle>Transaction Trends Over Time</CardTitle>
           <p className="text-sm text-muted-foreground">
             Explore how incomes and outcomes vary over daily, weekly, or monthly
-            periods.
+            periods
           </p>
         </div>
         <div className="flex space-x-2">

@@ -1,6 +1,6 @@
 import { BelvoTransaction } from "./definitions";
 
-const formatNumber = (num: number | undefined) => {
+const formatNumber = (num: number | undefined | null) => {
   if (!num) return "-";
   return new Intl.NumberFormat("en-US", {
     minimumFractionDigits: 2,
@@ -8,21 +8,39 @@ const formatNumber = (num: number | undefined) => {
   }).format(num);
 };
 
-export const calculateStatistics = (data: BelvoTransaction[]) => {
-  const amounts = data.map((transaction) => transaction.amount);
-  const mean = amounts.reduce((a, b) => a + b, 0) / amounts.length;
-  const median = amounts.sort((a, b) => a - b)[Math.floor(amounts.length / 2)];
-  const mode = amounts
+export const calculateMean = (data: BelvoTransaction[]) => {
+  return data.reduce((a, b) => a + b.amount, 0) / data.length;
+};
+
+export const calculateMedian = (amounts: number[]) => {
+  return amounts.sort((a, b) => a - b)[Math.floor(amounts.length / 2)];
+};
+
+export const calculateMode = (data: BelvoTransaction[]) => {
+  const transaction = data
     .sort(
       (a, b) =>
-        amounts.filter((v) => v === a).length -
-        amounts.filter((v) => v === b).length,
+        data.filter((v) => v === a).length - data.filter((v) => v === b).length,
     )
     .pop();
-  const variance =
-    amounts.reduce((sum, current) => sum + (current - mean) ** 2, 0) /
-    amounts.length;
-  const stdDev = Math.sqrt(variance);
+
+  return transaction?.amount;
+};
+
+export const calculateStandardDeviation = (mean: number, amounts: number[]) => {
+  if (amounts.length === 0) return 0;
+  const n = amounts.length;
+  return Math.sqrt(
+    amounts.map((x) => Math.pow(x - mean, 2)).reduce((a, b) => a + b) / n,
+  );
+};
+
+export const calculateStatistics = (data: BelvoTransaction[]) => {
+  const amounts = data.map((transaction) => transaction.amount);
+  const mean = calculateMean(data);
+  const median = calculateMedian(amounts);
+  const mode = calculateMode(data);
+  const stdDev = calculateStandardDeviation(mean, amounts);
 
   return {
     mean: formatNumber(mean),

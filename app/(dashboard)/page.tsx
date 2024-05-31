@@ -1,12 +1,9 @@
-import TransactionHistory from "@/components/dashboard/transactions-histoy";
-import TransactionsChart from "@/components/dashboard/transactions-chart";
-import DescriptiveStatistics from "@/components/dashboard/descriptive-statistics";
-import TransactionsScattered from "@/components/dashboard/transactions-scattered";
 import AccountFilter from "@/components/account-filter";
 import { getAccounts } from "@/actions/get-accounts";
 import { DateFilter } from "@/components/date-filter";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import Dashboard from "@/containers/dashboard";
 
 async function Filters() {
   const { data } = await getAccounts();
@@ -20,7 +17,7 @@ async function Filters() {
   );
 }
 
-export default async function Dashboard() {
+export default async function DashboardPage() {
   return (
     <>
       <div className="flex-1">
@@ -40,10 +37,7 @@ export default async function Dashboard() {
         </div>
       </div>
       <div className="flex flex-1 flex-col gap-4">
-        <DescriptiveStatistics />
-        <TransactionsChart />
-        <TransactionsScattered />
-        <TransactionHistory />
+        <Dashboard />
       </div>
     </>
   );

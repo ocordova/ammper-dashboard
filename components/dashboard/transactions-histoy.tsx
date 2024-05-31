@@ -11,17 +11,19 @@ import {
 import { ColumnDef } from "@tanstack/react-table";
 
 import { DataTable } from "@/components/ui/data-table";
-import TransactionData from "@/db/transactions.json";
 import { Badge } from "../ui/badge";
 import { sortByAccountingDate } from "@/lib/utils";
+import { format, parseISO } from "date-fns";
 
 export const columns: ColumnDef<BelvoTransaction>[] = [
   {
-    accessorKey: "accounting_date",
+    accessorKey: "value_date",
     header: "Date",
     cell: ({ row }) => {
-      const date: string = row.getValue("accounting_date");
-      return <span>{new Date(date).toLocaleDateString()}</span>;
+      const date: string = row.getValue("value_date");
+      const dateObj = parseISO(date);
+      const formatted = format(dateObj, "dd, MMMM, yyyy");
+      return <span>{formatted}</span>;
     },
   },
   {
@@ -74,10 +76,12 @@ export const columns: ColumnDef<BelvoTransaction>[] = [
   },
 ];
 
-export default function TransactionsHistory() {
-  const transactions: BelvoTransaction[] =
-    TransactionData as BelvoTransaction[];
-  transactions.sort(sortByAccountingDate);
+export default function TransactionsHistory({
+  transactions,
+}: {
+  transactions: BelvoTransaction[];
+}) {
+  const sorted = transactions.sort(sortByAccountingDate);
 
   return (
     <Card>
@@ -87,7 +91,7 @@ export default function TransactionsHistory() {
         </div>
       </CardHeader>
       <CardContent>
-        <DataTable columns={columns} data={transactions} />
+        <DataTable columns={columns} data={sorted} />
       </CardContent>
     </Card>
   );
