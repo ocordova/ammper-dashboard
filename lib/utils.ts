@@ -7,8 +7,8 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function sortByAccountingDate(a: BelvoTransaction, b: BelvoTransaction) {
-  return a.accounting_date > b.accounting_date ? -1 : 1;
+export function sortByValueDate(a: BelvoTransaction, b: BelvoTransaction) {
+  return a.value_date > b.value_date ? -1 : 1;
 }
 
 export const formatAmount = (amount: number) => {

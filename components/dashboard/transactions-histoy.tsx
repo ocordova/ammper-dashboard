@@ -12,7 +12,7 @@ import { ColumnDef } from "@tanstack/react-table";
 
 import { DataTable } from "@/components/ui/data-table";
 import { Badge } from "../ui/badge";
-import { sortByAccountingDate } from "@/lib/utils";
+import { sortByValueDate } from "@/lib/utils";
 import { format, parseISO } from "date-fns";
 
 export const columns: ColumnDef<BelvoTransaction>[] = [
@@ -81,7 +81,7 @@ export default function TransactionsHistory({
 }: {
   transactions: BelvoTransaction[];
 }) {
-  const sorted = transactions.sort(sortByAccountingDate);
+  const sorted = transactions.sort(sortByValueDate);
 
   return (
     <Card>
