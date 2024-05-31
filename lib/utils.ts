@@ -18,7 +18,7 @@ export const formatAmount = (amount: number) => {
   })}`;
 };
 
-type Period = {
+export type Period = {
   from: string | Date | undefined;
   to: string | Date | undefined;
 };

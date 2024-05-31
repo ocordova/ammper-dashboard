@@ -1,6 +1,6 @@
 import { BelvoTransaction } from "./definitions";
 
-const formatNumber = (num: number | undefined | null) => {
+export const formatNumber = (num: number | undefined | null) => {
   if (!num) return "-";
   return new Intl.NumberFormat("en-US", {
     minimumFractionDigits: 2,
@@ -9,11 +9,21 @@ const formatNumber = (num: number | undefined | null) => {
 };
 
 export const calculateMean = (data: BelvoTransaction[]) => {
+  if (data.length === 0) return 0;
   return data.reduce((a, b) => a + b.amount, 0) / data.length;
 };
 
 export const calculateMedian = (amounts: number[]) => {
-  return amounts.sort((a, b) => a - b)[Math.floor(amounts.length / 2)];
+  amounts.sort((a, b) => a - b);
+  const middle = Math.floor(amounts.length / 2);
+
+  if (amounts.length % 2 === 0) {
+    // Even number of elements: average the two middle elements
+    return (amounts[middle - 1] + amounts[middle]) / 2;
+  } else {
+    // Odd number of elements: return the middle element
+    return amounts[middle];
+  }
 };
 
 export const calculateMode = (data: BelvoTransaction[]) => {
