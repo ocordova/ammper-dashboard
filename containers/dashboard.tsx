@@ -5,13 +5,26 @@ import TransactionsScattered from "@/components/dashboard/transactions-scattered
 import { getTransactions } from "@/actions/get-transactions";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  BELVO_ACCOUNT_ID,
+  BELVO_LINK_ID,
+  DEFAULT_DAYS_BACK,
+} from "@/lib/constants";
+import { subDays, format } from "date-fns";
 
 export default async function Dashboard() {
+  const linkId = BELVO_LINK_ID;
+  const accountId = BELVO_ACCOUNT_ID;
+  const defaultTo = new Date();
+  const defaultFrom = subDays(defaultTo, DEFAULT_DAYS_BACK);
+  const from = format(defaultFrom, "yyyy-MM-dd");
+  const to = format(defaultTo, "yyyy-MM-dd");
+
   const { data } = await getTransactions({
-    linkId: "ef513177-bba7-4ecb-ad5a-4b34fcc3ef45",
-    accountId: "120e009a-d042-4279-b907-afce9cccbd4b",
-    dateFrom: "2024-02-01",
-    dateTo: "2024-05-30",
+    linkId: linkId,
+    accountId: accountId,
+    dateFrom: from,
+    dateTo: to,
   });
 
   if (!data) {

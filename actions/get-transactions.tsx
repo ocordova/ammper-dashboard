@@ -18,7 +18,7 @@ export const getTransactions = async (
   try {
     const payload: Record<string, string> = {
       link: linkId,
-      // account: accountId,
+      account: accountId,
       date_from: dateFrom,
       date_to: dateTo,
     };
