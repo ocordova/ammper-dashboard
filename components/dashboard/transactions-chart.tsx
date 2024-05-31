@@ -15,7 +15,7 @@ import { HighchartsReactProps } from "highcharts-react-official";
 import TransactionData from "@/db/transactions.json";
 import { BelvoTransaction } from "@/lib/definitions";
 import { addDays, format, parseISO, startOfISOWeek } from "date-fns";
-import { highchartColors } from "@/lib/constants";
+import { highchartColors } from "@/lib/highchart";
 
 enum ChartType {
   area = "area",

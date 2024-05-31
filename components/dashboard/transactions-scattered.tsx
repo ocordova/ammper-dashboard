@@ -8,7 +8,7 @@ import { HighchartsReactProps } from "highcharts-react-official";
 import TransactionData from "@/db/transactions.json";
 import { BelvoTransaction } from "@/lib/definitions";
 import { formatAmount } from "@/lib/utils";
-import { highchartColors } from "@/lib/constants";
+import { highchartColors } from "@/lib/highchart";
 
 HighchartsMore(Highcharts);
 
