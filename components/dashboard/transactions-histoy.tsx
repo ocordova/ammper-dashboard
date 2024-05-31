@@ -1,5 +1,4 @@
 "use client";
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import {
@@ -10,7 +9,7 @@ import {
   BelvoTransactionType,
 } from "@/lib/definitions";
 import { ColumnDef } from "@tanstack/react-table";
-import { format } from "date-fns";
+
 import { DataTable } from "@/components/ui/data-table";
 import TransactionData from "@/db/transactions.json";
 import { Badge } from "../ui/badge";
@@ -22,7 +21,7 @@ export const columns: ColumnDef<BelvoTransaction>[] = [
     header: "Date",
     cell: ({ row }) => {
       const date: string = row.getValue("accounting_date");
-      return <span>{format(date, "dd MMMM, yyyy")}</span>;
+      return <span>{new Date(date).toLocaleDateString()}</span>;
     },
   },
   {
@@ -75,7 +74,7 @@ export const columns: ColumnDef<BelvoTransaction>[] = [
   },
 ];
 
-export default function TransactionsTable() {
+export default function TransactionsHistory() {
   const transactions: BelvoTransaction[] =
     TransactionData as BelvoTransaction[];
   transactions.sort(sortByAccountingDate);
