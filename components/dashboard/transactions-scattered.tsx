@@ -8,6 +8,7 @@ import { HighchartsReactProps } from "highcharts-react-official";
 import TransactionData from "@/db/transactions.json";
 import { BelvoTransaction } from "@/lib/definitions";
 import { formatAmount } from "@/lib/utils";
+import { highchartColors } from "@/lib/constants";
 
 HighchartsMore(Highcharts);
 
@@ -43,7 +44,7 @@ const groupByCategoryAndType = (data: BelvoTransaction[]) => {
 };
 
 const getColorForType = (type: string) => {
-  return type === "INFLOW" ? "green" : "red";
+  return type === "INFLOW" ? highchartColors.emerald : highchartColors.rose;
 };
 
 export default function TransactionsChart() {
@@ -139,8 +140,10 @@ export default function TransactionsChart() {
           id="custom-legend"
           style={{ textAlign: "center", marginBottom: "10px" }}
         >
-          <span style={{ color: "green", marginRight: "15px" }}>● INFLOW</span>
-          <span style={{ color: "red" }}>● OUTFLOW</span>
+          <span style={{ color: highchartColors.emerald, marginRight: "15px" }}>
+            ● INFLOW
+          </span>
+          <span style={{ color: highchartColors.rose }}>● OUTFLOW</span>
         </div>
       </CardContent>
     </Card>

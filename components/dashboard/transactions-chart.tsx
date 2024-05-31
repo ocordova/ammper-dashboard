@@ -15,6 +15,7 @@ import { HighchartsReactProps } from "highcharts-react-official";
 import TransactionData from "@/db/transactions.json";
 import { BelvoTransaction } from "@/lib/definitions";
 import { addDays, format, parseISO, startOfISOWeek } from "date-fns";
+import { highchartColors } from "@/lib/constants";
 
 enum ChartType {
   area = "area",
@@ -138,13 +139,13 @@ export default function TransactionsChart() {
         name: "Incomes",
         data: incomes,
         type: chartType,
-        color: "blue",
+        color: highchartColors.emerald,
       },
       {
         name: "Outcomes",
         data: outcomes,
         type: chartType,
-        color: "red",
+        color: highchartColors.rose,
       },
     ],
   };
